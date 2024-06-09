@@ -8,6 +8,7 @@ const { DownloaderHelper } = require("node-downloader-helper");
 const unpacker = require("unpacker-with-progress");
 const log = require("electron-log/main");
 const { updateElectronApp } = require("update-electron-app");
+const { pseudoRandomBytes } = require("node:crypto");
 updateElectronApp();
 
 if (require("electron-squirrel-startup")) {
@@ -40,6 +41,8 @@ async function readJson(path) {
 }
 
 let mainWindow = "mainWindow";
+let loadingWindow = "loadingWindow";
+let settingsWindow = "settingsWindow";
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -144,16 +147,9 @@ async function checkJavaArgs() {
   );
 }
 
-const authorization = () => {
+const authorization = (parent) => {
   let authWindow;
-  createNewWindow(
-    authWindow,
-    512,
-    512,
-    "../html+css/auth.html",
-    true,
-    mainWindow
-  );
+  createNewWindow(authWindow, 512, 512, "../html+css/auth.html", true, parent);
 };
 
 async function isAuthorized() {
@@ -166,7 +162,7 @@ async function isAuthorized() {
     !json.hasOwnProperty("accessToken") ||
     !json.hasOwnProperty("nickname")
   ) {
-    authorization();
+    authorization(mainWindow);
   }
 }
 
@@ -178,7 +174,6 @@ app.whenReady().then(() => {
     changeSettings(settings);
   });
   ipcMain.on("settings", () => {
-    let settingsWindow;
     createNewWindow(
       settingsWindow,
       720,
@@ -201,7 +196,9 @@ app.whenReady().then(() => {
   ipcMain.on("close-app", () => {
     app.quit();
   });
-  ipcMain.on("auth", authorization);
+  ipcMain.on("auth", () => {
+    authorization(settingsWindow);
+  });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -390,7 +387,7 @@ async function unzipFiles(dest_path, fileName) {
   });
 }
 
-function verifyJava() {
+async function verifyJava(java_path) {
   if (!fs.existsSync(java_path + "/jdk-17.0.11")) {
     let java = "jdk-17_windows-x64_bin.zip";
     if (process.platform === "linux") {
@@ -419,7 +416,7 @@ function verifyJava() {
   }
 }
 
-async function verifyAssets() {
+async function verifyAssets(minecraft_path) {
   if (
     !fs.existsSync(minecraft_path + "/assets/indexes") ||
     !fs.existsSync(minecraft_path + "/assets/objects")
@@ -452,12 +449,12 @@ async function verifyAssets() {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function isGameReady() {
+async function isGameReady(minecraft_path, java_path) {
   while (!game_is_ready) {
     if (java_is_ready && assets_are_ready && files_are_ready) {
       log.info("launching game");
       log.silly("привет от V");
-      launchingGame();
+      launchingGame(minecraft_path, java_path);
       game_is_ready = true;
     }
     await sleep(2000);
@@ -518,11 +515,24 @@ async function prepareLibs(platformSep) {
   return cp;
 }
 
-async function launchingGame() {
+async function launchingGame(minecraft_path, java_path) {
+  let json = await readJson("./launcher_settings.json").catch(() => {});
+
   let platformSep = ";";
   if (process.platform !== "win32") {
     platformSep = ":";
   }
+
+  createNewWindow(
+    loadingWindow,
+    512,
+    512,
+    "../html+css/loading.html",
+    false,
+    mainWindow
+  );
+
+  mainWindow.hide();
 
   log.silly("<3");
 
@@ -534,8 +544,6 @@ async function launchingGame() {
   command = command.toString().replace(/\\/g, "/");
 
   let cp = await prepareLibs(platformSep);
-
-  let json = await readJson("./launcher_settings.json").catch(() => {});
 
   let args =
     "-javaagent:" +
@@ -608,6 +616,10 @@ async function launchingGame() {
     log.info(data.toString());
   });
 
+  launch.on("exit", () => {
+    app.quit();
+  });
+
   game_is_ready = false;
   files_are_ready = false;
   java_is_ready = false;
@@ -617,13 +629,41 @@ async function launchingGame() {
 ipcMain.on("launch", (event, arg) => {
   log.info("Launching minecraft");
 
-  verifyJava();
-  verifyAssets();
+  fs.readFile("./launcher_settings.json", (err, json) => {
+    json = JSON.parse(json);
+
+    if (json.hasOwnProperty("game_path")) game_path = json.game_path;
+    else {
+      game_path =
+        process.env.APPDATA ||
+        (process.platform === "darwin"
+          ? process.env.HOME + "\\Library\\minercraft"
+          : process.env.HOME + "\\minecraft");
+    }
+    if (json.hasOwnProperty("java_path")) java_path = json.java_path;
+    else {
+      if (
+        game_path[game_path.length - 1] !== "/" &&
+        game_path[game_path.length - 1] !== "\\"
+      )
+        java_path = game_path + "\\.dungeoncraft\\java";
+      else java_path = game_path + ".dungeoncraft\\java";
+    }
+    if (
+      game_path[game_path.length - 1] !== "/" &&
+      game_path[game_path.length - 1] !== "\\"
+    )
+      minecraft_path = game_path + "\\.dungeoncraft\\dungeoncraft";
+    else minecraft_path = game_path + ".dungeoncraft\\dungeoncraft";
+  });
+
+  verifyJava(java_path);
+  verifyAssets(minecraft_path);
 
   let server_url = "https://luciarey.github.io/dungeoncraft/dungeoncraft";
 
   if (fs.existsSync(minecraft_path + "/server.txt")) {
-    fs.unlink(minecraft_path + "/server.txt");
+    fs.unlinkSync(minecraft_path + "/server.txt");
   }
 
   const dl = new DownloaderHelper(server_url + "/server.txt", minecraft_path);
@@ -639,7 +679,7 @@ ipcMain.on("launch", (event, arg) => {
   });
   dl.start().catch((err) => log.error(err));
 
-  isGameReady();
+  isGameReady(minecraft_path, java_path);
 });
 
 let error = "";

@@ -53,27 +53,32 @@ function writeValue() {
 
 const gamePathBtn = document.getElementById("gamePathBtn");
 const gamePath = document.getElementById("gamePath");
+const javaPathBtn = document.getElementById("javaPathBtn");
+const javaPath = document.getElementById("javaPath");
 
 gamePathBtn.addEventListener("click", async () => {
   let folderPath = await window.electronAPI.openFolder();
   if (folderPath !== undefined) {
     folderPath = folderPath.toString().replace(/\\/g, "/");
     gamePath.innerText = folderPath;
+    folderPath = folderPath.toString().replace(/\//g, "\\");
+    if (gamePath.innerText[gamePath.innerText.length - 1] !== "/")
+      javaPath.innerText = gamePath.innerText + "/.dungeoncraft/java";
+    else javaPath.innerText = gamePath.innerText + ".dungeoncraft/java";
     let path = {
       game_path: gamePath.innerText,
+      java_path: javaPath.innerText,
     };
     window.electronAPI.changeSettings(path);
   }
 });
-
-const javaPathBtn = document.getElementById("javaPathBtn");
-const javaPath = document.getElementById("javaPath");
 
 javaPathBtn.addEventListener("click", async () => {
   let folderPath = await window.electronAPI.openFolder();
   if (folderPath !== undefined) {
     folderPath = folderPath.toString().replace(/\\/g, "/");
     javaPath.innerText = folderPath;
+    folderPath = folderPath.toString().replace(/\//g, "\\");
     let path = {
       java_path: javaPath.innerText,
     };
