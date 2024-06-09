@@ -7,7 +7,7 @@ const childProcess = require("child_process");
 const { DownloaderHelper } = require("node-downloader-helper");
 const unpacker = require("unpacker-with-progress");
 const log = require("electron-log/main");
-const { updateElectronApp, UpdateSourceType } = require("update-electron-app");
+const { updateElectronApp } = require("update-electron-app");
 updateElectronApp();
 
 if (require("electron-squirrel-startup")) {
