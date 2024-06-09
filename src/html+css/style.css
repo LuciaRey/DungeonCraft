@@ -122,6 +122,16 @@ textarea {
     border-radius: 2px;
 }
 
+input {
+    color: rgb(213, 213, 232);
+    background-color:rgb(32, 32, 32);
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-width: 1px;
+    border-radius: 2px;
+}
+
 .settings fieldset {
     width: 260px;
     margin: 15px auto 20px;
