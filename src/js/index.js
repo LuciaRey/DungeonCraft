@@ -51,8 +51,6 @@ const createWindow = () => {
   });
 
   mainWindow.loadFile(path.join(__dirname, "../html+css/index.html"));
-
-  mainWindow.webContents.openDevTools();
 };
 
 const createNewWindow = (
@@ -74,8 +72,6 @@ const createNewWindow = (
   });
 
   winName.loadFile(path.join(__dirname, winPath));
-
-  winName.webContents.openDevTools();
 };
 
 async function settings() {
