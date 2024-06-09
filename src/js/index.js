@@ -8,12 +8,7 @@ const { DownloaderHelper } = require("node-downloader-helper");
 const unpacker = require("unpacker-with-progress");
 const log = require("electron-log/main");
 const { updateElectronApp, UpdateSourceType } = require("update-electron-app");
-updateElectronApp({
-  updateSource: {
-    type: UpdateSourceType.ElectronPublicUpdateService,
-    repo: "LuciaRey/DungeonCraft",
-  },
-});
+updateElectronApp();
 
 if (require("electron-squirrel-startup")) {
   app.quit();

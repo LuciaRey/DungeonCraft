@@ -5,6 +5,10 @@
   "description": "Minecraft launcher",
   "main": "src/js/index.js",
   "icon": "src/images/icon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LuciaRey/DungeonCraft.git"
+  },
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
