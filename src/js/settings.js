@@ -1,6 +1,7 @@
 async function getData() {
   let nickname = await window.electronAPI.getSettings("nickname");
   const nick = document.getElementById("nickname");
+  nickname = " " + nickname;
   nick.innerHTML += nickname;
 
   let java_args = await window.electronAPI.getSettings("java_args");
@@ -10,6 +11,7 @@ async function getData() {
   let gamePath = await window.electronAPI.getSettings("game_path");
   const game_path = document.getElementById("gamePath");
   if (gamePath !== undefined) {
+    gamePath = gamePath.toString().replace(/\\/g, "/");
     game_path.innerHTML += gamePath;
   } else game_path.innerHTML += "%appdata%";
 
@@ -53,8 +55,9 @@ const gamePathBtn = document.getElementById("gamePathBtn");
 const gamePath = document.getElementById("gamePath");
 
 gamePathBtn.addEventListener("click", async () => {
-  const folderPath = await window.electronAPI.openFolder();
-  if (gamePath.innerText) {
+  let folderPath = await window.electronAPI.openFolder();
+  if (folderPath !== undefined) {
+    folderPath = folderPath.toString().replace(/\\/g, "/");
     gamePath.innerText = folderPath;
     let path = {
       game_path: gamePath.innerText,
@@ -67,8 +70,9 @@ const javaPathBtn = document.getElementById("javaPathBtn");
 const javaPath = document.getElementById("javaPath");
 
 javaPathBtn.addEventListener("click", async () => {
-  const folderPath = await window.electronAPI.openFolder();
-  if (javaPath.innerText) {
+  let folderPath = await window.electronAPI.openFolder();
+  if (folderPath !== undefined) {
+    folderPath = folderPath.toString().replace(/\\/g, "/");
     javaPath.innerText = folderPath;
     let path = {
       java_path: javaPath.innerText,

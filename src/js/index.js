@@ -43,8 +43,14 @@ let mainWindow = "mainWindow";
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 730,
+    height: 400,
+    titleBarStyle: "hidden",
+    titleBarOverlay: {
+      color: "#1F1F2D",
+      symbolColor: "#c4c3f4",
+      height: 32,
+    },
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
@@ -66,6 +72,12 @@ const createNewWindow = (
     height: winHeight,
     modal: winModal,
     parent: winParent,
+    titleBarStyle: "hidden",
+    titleBarOverlay: {
+      color: "#1F1F2D",
+      symbolColor: "#c4c3f4",
+      height: 32,
+    },
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
@@ -169,7 +181,7 @@ app.whenReady().then(() => {
     let settingsWindow;
     createNewWindow(
       settingsWindow,
-      800,
+      720,
       660,
       "../html+css/settings.html",
       true,
@@ -587,7 +599,7 @@ async function launchingGame() {
       app.quit();
     }
     if (data.includes("Setting user:")) {
-      //hide launcher
+      mainWindow.hide();
     }
     log.info(data.toString());
   });

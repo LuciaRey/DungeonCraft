@@ -1,15 +1,12 @@
-const { FusesPlugin } = require("@electron-forge/plugin-fuses");
-const { FuseV1Options, FuseVersion } = require("@electron/fuses");
-
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+    icon: "src/images/icon",
+  },
   rebuildConfig: {},
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {
-        icon: "src/images/icon",
-      },
+      config: {},
     },
     {
       name: "@electron-forge/maker-zip",
@@ -18,14 +15,14 @@ module.exports = {
     {
       name: "@electron-forge/maker-deb",
       config: {
-        icon: "src/images/icon",
+        options: {
+          icon: "src/images/icon.ico",
+        },
       },
     },
     {
       name: "@electron-forge/maker-rpm",
-      config: {
-        icon: "src/images/icon",
-      },
+      config: {},
     },
   ],
   plugins: [],
