@@ -607,7 +607,7 @@ async function launchingGame(minecraft_path, java_path) {
       app.quit();
     }
     if (data.includes("Setting user:")) {
-      mainWindow.hide();
+      loadingWindow.hide();
     }
     log.info(data.toString());
   });
