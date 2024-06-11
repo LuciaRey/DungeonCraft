@@ -601,6 +601,12 @@ async function launchingGame(minecraft_path, java_path) {
 
   args = args.split(" ");
 
+  let loadingId;
+
+  ipcMain.on("id", (e) => {
+    loadingId = e.sender.getOwnerBrowserWindow().id;
+  });
+
   const launch = childProcess.spawn(command, args);
 
   launch.stdout.on("data", (data) => {
@@ -608,7 +614,7 @@ async function launchingGame(minecraft_path, java_path) {
       app.quit();
     }
     if (data.includes("Setting user:")) {
-      loadingWindow.hide();
+      BrowserWindow.fromId(loadingId).hide();
     }
     log.info(data.toString());
   });

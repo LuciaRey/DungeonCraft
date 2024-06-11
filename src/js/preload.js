@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   settings: () => ipcRenderer.send("settings"),
   launch: () => ipcRenderer.send("launch"),
   auth: () => ipcRenderer.send("auth"),
+  id: () => ipcRenderer.send("id"),
 });
