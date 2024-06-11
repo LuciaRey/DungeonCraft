@@ -8,7 +8,6 @@ const { DownloaderHelper } = require("node-downloader-helper");
 const unpacker = require("unpacker-with-progress");
 const log = require("electron-log/main");
 const { updateElectronApp } = require("update-electron-app");
-const { pseudoRandomBytes } = require("node:crypto");
 updateElectronApp();
 
 if (require("electron-squirrel-startup")) {
@@ -49,6 +48,7 @@ const createWindow = () => {
     width: 730,
     height: 400,
     titleBarStyle: "hidden",
+    icon: "../images/icon.ico",
     titleBarOverlay: {
       color: "#1F1F2D",
       symbolColor: "#c4c3f4",
@@ -76,6 +76,7 @@ const createNewWindow = (
     modal: winModal,
     parent: winParent,
     titleBarStyle: "hidden",
+    icon: "../images/icon.ico",
     titleBarOverlay: {
       color: "#1F1F2D",
       symbolColor: "#c4c3f4",
