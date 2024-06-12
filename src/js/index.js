@@ -22,7 +22,7 @@ log.transports.file.resolvePathFn = () => "./logs/main.log";
 let game_path =
   process.env.APPDATA ||
   (process.platform === "darwin"
-    ? process.env.HOME + "\\Library\\minercraft"
+    ? process.env.HOME + "\\Library\\minecraft"
     : process.env.HOME + "\\minecraft");
 
 let java_path = game_path + "\\.dungeoncraft\\java";
@@ -425,7 +425,7 @@ async function verifyAssets(minecraft_path) {
     if (!fs.existsSync(minecraft_path + "/assets" + "/assets.zip")) {
       log.info("assets are missing | downloading assets");
 
-      fs.mkdir(minecraft_path + "/assets", (err) => {});
+      fs.mkdirSync(minecraft_path + "/assets");
 
       const dl = new DownloaderHelper(
         "https://drive.usercontent.google.com/download?id=1NKCw1p4v3ZiNZKqpQ3ruu3q2BOpmIlvo&export=download&authuser=0&confirm=t&uuid=24f21176-93eb-4bce-b176-7834831e5cde&at=APZUnTUDhrYnoMIk1fUNVIEGUDV_:1717157136458",
@@ -523,17 +523,6 @@ async function launchingGame(minecraft_path, java_path) {
   if (process.platform !== "win32") {
     platformSep = ":";
   }
-
-  createNewWindow(
-    loadingWindow,
-    512,
-    512,
-    "../html+css/loading.html",
-    false,
-    mainWindow
-  );
-
-  mainWindow.hide();
 
   log.silly("<3");
 
@@ -633,8 +622,20 @@ async function launchingGame(minecraft_path, java_path) {
   assets_are_ready = false;
 }
 
-ipcMain.on("launch", (event, arg) => {
+async function launch() {
+  await settings();
   log.info("Launching minecraft");
+
+  createNewWindow(
+    loadingWindow,
+    512,
+    512,
+    "../html+css/loading.html",
+    false,
+    mainWindow
+  );
+
+  mainWindow.hide();
 
   fs.readFile("./launcher_settings.json", (err, json) => {
     json = JSON.parse(json);
@@ -644,7 +645,7 @@ ipcMain.on("launch", (event, arg) => {
       game_path =
         process.env.APPDATA ||
         (process.platform === "darwin"
-          ? process.env.HOME + "\\Library\\minercraft"
+          ? process.env.HOME + "\\Library\\minecraft"
           : process.env.HOME + "\\minecraft");
     }
     if (json.hasOwnProperty("java_path")) java_path = json.java_path;
@@ -687,6 +688,10 @@ ipcMain.on("launch", (event, arg) => {
   dl.start().catch((err) => log.error(err));
 
   isGameReady(minecraft_path, java_path);
+}
+
+ipcMain.on("launch", (event, arg) => {
+  launch();
 });
 
 let error = "";
