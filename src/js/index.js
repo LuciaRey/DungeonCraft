@@ -626,14 +626,22 @@ async function launch() {
   await settings();
   log.info("Launching minecraft");
 
-  createNewWindow(
-    loadingWindow,
-    512,
-    512,
-    "../html+css/loading.html",
-    false,
-    mainWindow
-  );
+  loadingWindow = new BrowserWindow({
+    width: 512,
+    height: 512,
+    titleBarStyle: "hidden",
+    icon: "../images/icon.ico",
+    titleBarOverlay: {
+      color: "#1F1F2D",
+      symbolColor: "#c4c3f4",
+      height: 32,
+    },
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
+
+  loadingWindow.loadFile(path.join(__dirname, "../html+css/loading.html"));
 
   mainWindow.hide();
 
