@@ -22,11 +22,11 @@ log.transports.file.resolvePathFn = () => "./logs/main.log";
 let game_path =
   process.env.APPDATA ||
   (process.platform === "darwin"
-    ? process.env.HOME + "\\Library\\minecraft"
-    : process.env.HOME + "\\minecraft");
+    ? process.env.HOME + "/Library/minecraft"
+    : process.env.HOME + "/minecraft");
 
-let java_path = game_path + "\\.dungeoncraft\\java";
-let minecraft_path = game_path + "\\.dungeoncraft\\dungeoncraft";
+let java_path = game_path + "/.dungeoncraft/java";
+let minecraft_path = game_path + "/.dungeoncraft/dungeoncraft";
 
 async function createDir(path) {
   const dirCreation = await fsPromise.mkdir(path, { recursive: true });
@@ -95,10 +95,10 @@ async function settings() {
     let json = await readJson("./launcher_settings.json").catch(() => {});
     if (json.hasOwnProperty("game_path")) {
       game_path = json.game_path;
-      minecraft_path = game_path + "\\.dungeoncraft\\dungeoncraft";
+      minecraft_path = game_path + "/.dungeoncraft/dungeoncraft";
     }
     if (json.hasOwnProperty("java_path")) java_path = json.java_path;
-    else java_path = game_path + "\\.dungeoncraft\\java";
+    else java_path = game_path + "/.dungeoncraft/java";
     if (!json.hasOwnProperty("clientToken")) {
       let rnd = "";
       while (rnd.length < 30) {
@@ -125,7 +125,7 @@ async function settings() {
     log.info("Created launcher_settings");
   }
 
-  createDir(minecraft_path + "\\natives").catch(console.error);
+  createDir(minecraft_path + "/natives").catch(console.error);
   createDir(java_path).catch(console.error);
 
   checkJavaArgs();
@@ -648,8 +648,8 @@ async function launch() {
       game_path =
         process.env.APPDATA ||
         (process.platform === "darwin"
-          ? process.env.HOME + "\\Library\\minecraft"
-          : process.env.HOME + "\\minecraft");
+          ? process.env.HOME + "/Library/minecraft"
+          : process.env.HOME + "/minecraft");
     }
     if (json.hasOwnProperty("java_path")) java_path = json.java_path;
     else {
@@ -657,15 +657,15 @@ async function launch() {
         game_path[game_path.length - 1] !== "/" &&
         game_path[game_path.length - 1] !== "\\"
       )
-        java_path = game_path + "\\.dungeoncraft\\java";
-      else java_path = game_path + ".dungeoncraft\\java";
+        java_path = game_path + "/.dungeoncraft/java";
+      else java_path = game_path + ".dungeoncraft/java";
     }
     if (
       game_path[game_path.length - 1] !== "/" &&
       game_path[game_path.length - 1] !== "\\"
     )
-      minecraft_path = game_path + "\\.dungeoncraft\\dungeoncraft";
-    else minecraft_path = game_path + ".dungeoncraft\\dungeoncraft";
+      minecraft_path = game_path + "/.dungeoncraft/dungeoncraft";
+    else minecraft_path = game_path + ".dungeoncraft/dungeoncraft";
   });
 
   verifyJava(java_path);
