@@ -425,7 +425,8 @@ async function verifyAssets(minecraft_path) {
     if (!fs.existsSync(minecraft_path + "/assets" + "/assets.zip")) {
       log.info("assets are missing | downloading assets");
 
-      fs.mkdirSync(minecraft_path + "/assets");
+      if (!fs.existsSync(minecraft_path + "/assets"))
+        fs.mkdirSync(minecraft_path + "/assets");
 
       const dl = new DownloaderHelper(
         "https://drive.usercontent.google.com/download?id=1NKCw1p4v3ZiNZKqpQ3ruu3q2BOpmIlvo&export=download&authuser=0&confirm=t&uuid=24f21176-93eb-4bce-b176-7834831e5cde&at=APZUnTUDhrYnoMIk1fUNVIEGUDV_:1717157136458",
@@ -590,12 +591,6 @@ async function launchingGame(minecraft_path, java_path) {
 
   args = args.split(" ");
 
-  let loadingId;
-
-  ipcMain.on("id", (e) => {
-    loadingId = e.sender.getOwnerBrowserWindow().id;
-  });
-
   const launch = childProcess.spawn(command, args);
 
   launch.stdout.on("data", (data) => {
@@ -603,7 +598,7 @@ async function launchingGame(minecraft_path, java_path) {
       app.quit();
     }
     if (data.includes("Setting user:")) {
-      BrowserWindow.fromId(loadingId).hide();
+      loadingWindow.hide();
     }
     log.info(data.toString());
   });
